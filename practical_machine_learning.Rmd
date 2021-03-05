@@ -1,0 +1,78 @@
+---
+title: "Practical Machine Learning Project"
+output:
+  html_document: default
+  word_document: default
+---
+### Overview
+The goal of your project is to predict the manner in which they did the exercise.
+This is the "classe" variable in the training set. You may use any of the other variables to predict with. 
+A report describing has been created to show how to built the model, how to use cross validation. 
+
+
+### Load the Library
+Check for missing dependencies and load necessary R packages
+```{r, echo = TRUE}
+setwd("~/Coursera/practical_machine_learning")
+library(knitr)
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(readr)
+```
+###  Read the test and  training dataset 
+```{r, echo = TRUE}
+training <- read.csv(file="pml-training.csv", header=TRUE, as.is = TRUE, stringsAsFactors = FALSE, 
+                        sep=',', na.strings=c('NA','','#DIV/0!'))
+testing <- read.csv(file="pml-testing.csv", header=TRUE, as.is = TRUE, stringsAsFactors = FALSE, 
+                       sep=',', na.strings=c('NA','','#DIV/0!'))
+
+
+dim(training)
+dim(testing)
+```
+###  Prepare the data
+The data are prepared for the analysis: the not applicable data and not a number data 
+are removed from the data read form the *.csv files
+```{r, echo = TRUE}
+
+classe <- training$classe
+training_NoNA <- training[, colSums(is.na(training)) == 0] 
+trainingData <- training_NoNA[, sapply(training_NoNA, is.numeric)]
+
+trainingData$classe <- classe
+
+```
+### Split the data in two subset
+Split the training data in two dataset, a 70% is used for training and a 30% is used to 
+verified the predicted model. 
+```{r, cache = T}
+datasplitted <- createDataPartition(trainingData$classe, p=0.70, list=F)
+trainData <- trainingData[datasplitted, ]
+testData <- trainingData[-datasplitted, ]
+```
+###  Data Modeling
+Fit the predictive model.
+```{r, echo = TRUE}
+modelTree <- train(classe ~ ., data=trainData, method="ctree", trControl=trainControl())
+modelTree
+```
+
+###  Evaluation of the model on the training data
+The  model is evalued on the 30% of the training data not used for fitting the p.
+```{r, echo = TRUE}
+predictTree <- predict(modelTree, testData)
+df <- data.frame(x = 1:dim(testData)[1],testData$classe,predictTree)
+ggplot(df, aes(x)) +                
+  geom_line(aes(y=testData$classe), colour="red",size = 2) +
+  geom_line(aes(y=predictTree), colour="green",size = 1) +
+  labs(title="trainData in red and testData in green", y="classes value", x="obs")
+
+```
+
+###  Predicting for Test Data Set
+The result on the testing data
+```{r, cache = T}
+result <- predict(modelTree, testing)
+result
+```
