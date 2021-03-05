@@ -13,7 +13,7 @@ A report describing has been created to show how to built the model, how to use 
 ### Load the Library
 Check for missing dependencies and load necessary R packages
 ```{r, echo = TRUE}
-setwd("~/Coursera/practical_machine_learning")
+setwd("~/Coursera/practical-machine-learning")
 library(knitr)
 library(caret)
 library(rpart)
