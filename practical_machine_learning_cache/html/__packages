@@ -3,6 +3,3 @@ knitr
 lattice
 ggplot2
 caret
-rpart
-rpart.plot
-readr

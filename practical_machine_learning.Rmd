@@ -16,9 +16,6 @@ Check for missing dependencies and load necessary R packages
 setwd("~/Coursera/practical-machine-learning")
 library(knitr)
 library(caret)
-library(rpart)
-library(rpart.plot)
-library(readr)
 ```
 ###  Read the test and  training dataset 
 ```{r, echo = TRUE}
@@ -32,44 +29,57 @@ dim(testing)
 The data are prepared for the analysis: the not applicable data and not a number data 
 are removed from the data read form the *.csv files
 ```{r, echo = TRUE}
+# remove variables that are almost always NA
+
+training <- training[, colSums(is.na(training)) == 0] 
 
 classe <- training$classe
-training_NoNA <- training[, colSums(is.na(training)) == 0] 
-trainingData <- training_NoNA[, sapply(training_NoNA, is.numeric)]
-
-trainingData$classe <- classe
+trainRemove <- grepl("^X|timestamp|window", names(training))
+training <- training[, !trainRemove]
+training <- training[, sapply(training, is.numeric)]
+training$classe <- classe
 
 ```
+
 ### Split the data in two subset
 Split the training data in two dataset, a 70% is used for training and a 30% is used to 
 verified the predicted model. 
 ```{r, cache = T}
-datasplitted <- createDataPartition(trainingData$classe, p=0.70, list=F)
-trainData <- trainingData[datasplitted, ]
-testData <- trainingData[-datasplitted, ]
+datasplitted <- createDataPartition(training$classe, p=0.70, list=FALSE)
+mytrainData <- training[datasplitted, ]
+mytestData <- training[-datasplitted, ]
 ```
+
 ###  Data Modeling
 Fit the predictive model.
 ```{r, echo = TRUE}
-modelTree <- train(classe ~ ., data=trainData, method="ctree", trControl=trainControl())
-modelTree
+modelTree <- train(classe ~ ., data=mytrainData, method="ctree", trControl=trainControl())
+print(modelTree)
+
+controlRf <- trainControl(method="cv", 5)
+modelRf <- train(classe ~ ., data=mytrainData, method="rf", trControl=controlRf, ntree=250)
+print(modelRf)
+
 ```
 
 ###  Evaluation of the model on the training data
-The  model is evalued on the 30% of the training data not used for fitting the p.
+Models is evalued on the 30% of the training data not used for fitting.
 ```{r, echo = TRUE}
-predictTree <- predict(modelTree, testData)
-df <- data.frame(x = 1:dim(testData)[1],testData$classe,predictTree)
-ggplot(df, aes(x)) +                
-  geom_line(aes(y=testData$classe), colour="red",size = 2) +
-  geom_line(aes(y=predictTree), colour="green",size = 1) +
-  labs(title="trainData in red and testData in green", y="classes value", x="obs")
+predictTree <- predict(modelTree, mytestData)
+accuracyTree <- postResample(predictTree, as.factor(mytestData$classe))
+accuracyTree
 
+predictRf <- predict(modelRf, mytestData)
+accuracyRf <- postResample(predictRf,  as.factor(mytestData$classe))
+accuracyRf
 ```
 
 ###  Predicting for Test Data Set
-The result on the testing data
+Results on the testing data, take in account that the modelRf is teh best model
 ```{r, cache = T}
-result <- predict(modelTree, testing)
-result
+resultTree <- predict(modelTree, testing)
+print(resultTree)
+
+resultRf <- predict(modelRf, testing)
+print(resultRf)
 ```
