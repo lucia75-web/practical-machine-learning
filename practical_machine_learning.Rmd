@@ -22,11 +22,8 @@ library(readr)
 ```
 ###  Read the test and  training dataset 
 ```{r, echo = TRUE}
-training <- read.csv(file="pml-training.csv", header=TRUE, as.is = TRUE, stringsAsFactors = FALSE, 
-                        sep=',', na.strings=c('NA','','#DIV/0!'))
-testing <- read.csv(file="pml-testing.csv", header=TRUE, as.is = TRUE, stringsAsFactors = FALSE, 
-                       sep=',', na.strings=c('NA','','#DIV/0!'))
-
+training <- read.csv("./pml-training.csv")
+testing <- read.csv("./pml-testing.csv")
 
 dim(training)
 dim(testing)
