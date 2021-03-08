@@ -217,7 +217,7 @@ dim(training)</code></pre>
 </div>
 <div id="prepare-the-data" class="section level3">
 <h3>Prepare the data</h3>
-<p>The data are prepared for the analysis: the not applicable data and not a number data are removed from the data read form the *.csv files</p>
+<p>The data are prepared for the analysis: the not applicable data and not a number data are removed from the data read form the *.csv file</p>
 <pre class="r"><code># remove variables that are almost always NA
 
 training &lt;- training[, colSums(is.na(training)) == 0] 
@@ -237,7 +237,7 @@ mytestData &lt;- training[-datasplitted, ]</code></pre>
 </div>
 <div id="data-modeling" class="section level3">
 <h3>Data Modeling</h3>
-<p>Fit the predictive model.</p>
+<p>Fit the predictive model. Two model are estimated to find the best model, the randoms forest and the conditional Inference Tree</p>
 <pre class="r"><code>modelTree &lt;- train(classe ~ ., data=mytrainData, method=&quot;ctree&quot;, trControl=trainControl())
 print(modelTree)</code></pre>
 <pre><code>## Conditional Inference Tree 
@@ -279,6 +279,7 @@ print(modelRf)</code></pre>
 ## 
 ## Accuracy was used to select the optimal model using the largest value.
 ## The final value used for the model was mtry = 27.</code></pre>
+<p>Analyzing the two models we can see that the randoms forest is the model with a better accuracy.</p>
 </div>
 <div id="evaluation-of-the-model-on-the-training-data" class="section level3">
 <h3>Evaluation of the model on the training data</h3>
@@ -293,14 +294,11 @@ accuracyRf &lt;- postResample(predictRf,  as.factor(mytestData$classe))
 accuracyRf</code></pre>
 <pre><code>##  Accuracy     Kappa 
 ## 0.9915038 0.9892511</code></pre>
+<p>The same accuracy is confirmed on the data training used for the test.</p>
 </div>
 <div id="predicting-for-test-data-set" class="section level3">
 <h3>Predicting for Test Data Set</h3>
-<p>Results on the testing data, take in account that the modelRf is teh best model</p>
-<pre class="r"><code>resultTree &lt;- predict(modelTree, testing)
-print(resultTree)</code></pre>
-<pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B
-## Levels: A B C D E</code></pre>
+<p>Results on the testing data, take in account that the modelRf is the best model</p>
 <pre class="r"><code>resultRf &lt;- predict(modelRf, testing)
 print(resultRf)</code></pre>
 <pre><code>##  [1] B A B A A E D B A A B C B A E E A B B B

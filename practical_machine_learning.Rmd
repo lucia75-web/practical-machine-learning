@@ -1,8 +1,9 @@
 ---
 title: "Practical Machine Learning Project"
 output:
-  html_document: default
   word_document: default
+  html_document: default
+  pdf_document: default
 ---
 ### Overview
 The goal of your project is to predict the manner in which they did the exercise.
@@ -27,7 +28,7 @@ dim(testing)
 ```
 ###  Prepare the data
 The data are prepared for the analysis: the not applicable data and not a number data 
-are removed from the data read form the *.csv files
+are removed from the data read form the *.csv file
 ```{r, echo = TRUE}
 # remove variables that are almost always NA
 
@@ -52,6 +53,7 @@ mytestData <- training[-datasplitted, ]
 
 ###  Data Modeling
 Fit the predictive model.
+Two model are estimated to find the best model, the randoms forest and the conditional Inference Tree
 ```{r, echo = TRUE}
 modelTree <- train(classe ~ ., data=mytrainData, method="ctree", trControl=trainControl())
 print(modelTree)
@@ -61,8 +63,9 @@ modelRf <- train(classe ~ ., data=mytrainData, method="rf", trControl=controlRf,
 print(modelRf)
 
 ```
+Analyzing the two models we can see that the randoms forest is the model with a better accuracy.
 
-###  Evaluation of the model on the training data
+###Evaluation of the model on the training data
 Models is evalued on the 30% of the training data not used for fitting.
 ```{r, echo = TRUE}
 predictTree <- predict(modelTree, mytestData)
@@ -73,13 +76,11 @@ predictRf <- predict(modelRf, mytestData)
 accuracyRf <- postResample(predictRf,  as.factor(mytestData$classe))
 accuracyRf
 ```
+The same accuracy is confirmed on the data training used for the test.
 
 ###  Predicting for Test Data Set
-Results on the testing data, take in account that the modelRf is teh best model
+Results on the testing data, take in account that the modelRf is the best model
 ```{r, cache = T}
-resultTree <- predict(modelTree, testing)
-print(resultTree)
-
 resultRf <- predict(modelRf, testing)
 print(resultRf)
 ```
